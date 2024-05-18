@@ -1,7 +1,10 @@
 #pragma once
 
 #include <string>
+#include <utility>
 #include <vector>
+#include <unordered_set>
+#include <functional>
 
 namespace bustub {
 
@@ -59,7 +62,28 @@ class ORSet {
   auto ToString() const -> std::string;
 
  private:
-  // TODO(student): Add your private memeber variables to represent ORSet.
+  // Custom hash function for std::pair
+  struct PairHash {
+      template <class T1, class T2>
+      auto operator()(const std::pair<T1, T2>& p) const -> std::size_t {
+          auto hash1 = std::hash<T1>{}(p.first);
+          auto hash2 = std::hash<T2>{}(p.second);
+          return hash1 ^ (hash2 << 1); // or use boost::hash_combine
+      }
+  };
+
+  // Define equality comparison for std::pair
+  struct PairEqual {
+      template <class T1, class T2>
+      auto operator()(const std::pair<T1, T2>& p1, const std::pair<T1, T2>& p2) const -> bool {
+          return p1.first == p2.first && p1.second == p2.second;
+      }
+  };
+
+  std::unordered_set<std::pair<T, uid_t>, PairHash, PairEqual> element_set_;
+  std::unordered_set<std::pair<T, uid_t>, PairHash, PairEqual> tombstone_set_;
+
+  
 };
 
 }  // namespace bustub
